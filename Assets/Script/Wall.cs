@@ -10,6 +10,8 @@ public class Wall : MonoBehaviour
     public float spd;
     new Rigidbody rigidbody;
 
+    bool trigger = true;
+
     private void Awake()
     {
         try
@@ -20,6 +22,11 @@ public class Wall : MonoBehaviour
         {
             Debug.LogError(e.Message);
         }
+
+        this.transform.position = new Vector3(
+            this.transform.position.x,
+            UnityEngine.Random.Range(-1f,2.5f),
+            this.transform.position.z); ;
     }
     private void Start()
     {
@@ -29,7 +36,12 @@ public class Wall : MonoBehaviour
     {
         if (this.transform.position.x < -15)
         {
-            this.transform.position = new Vector3(5, 1, -10);
+            Destroy(this.gameObject);
+        }
+        else if (this.transform.position.x < -5 && trigger)
+        {
+            trigger = false;
+            GameManager.score += 1;
         }
     }
 
@@ -37,8 +49,16 @@ public class Wall : MonoBehaviour
     {
         while (true)
         {
+            if (rigidbody == null) return;
             rigidbody.velocity = Vector3.left * spd;
             await Task.Delay(1000);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("PLAYER"))
+            GameManager.resetGame();
+
     }
 }

@@ -4,16 +4,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using UnityEngine;
+using UnityEditor.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     // Start is called before the first frame update
     public GameObject Wall;
     public Transform trs;
+    public static int score { get; set; } = 0;
     private void Awake()
     {
-        CreateWall();
+        StartCoroutine("CreateWall");
         trs = Wall.transform;
+        score = 0;
     }
 
     void Start()
@@ -24,19 +27,25 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("Main");
+        Debug.Log($"Score : {score}");
     }
 
-    async void CreateWall()
+    IEnumerator CreateWall()
     {
         while (true)
         {
             if (Wall == null)
             {
                 Debug.LogError("Wall Object had not found");
-                return;
+                yield break;
             }
-            await Task.Delay(1000);
+            Instantiate(Wall);
+            yield return new WaitForSeconds(2.5f);
         }
+    }
+
+    public static void resetGame()
+    {
+        EditorSceneManager.LoadScene(EditorSceneManager.GetActiveScene().name);
     }
 }
