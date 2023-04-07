@@ -8,12 +8,23 @@ using UnityEngine;
 public class Wall : MonoBehaviour
 {   // Update is called once per frame
     public float spd;
+    public int wallType;
+    public int direction;
     new Rigidbody rigidbody;
 
     bool trigger = true;
 
+    enum MoveType
+    {
+        _NORMAL = 0,
+        _SWIPE
+    }
+
     private void Awake()
     {
+        wallType = UnityEngine.Random.Range(0,2);
+        Debug.Log(wallType);
+
         try
         {
             this.rigidbody = GetComponent<Rigidbody>();
@@ -50,7 +61,16 @@ public class Wall : MonoBehaviour
         while (true)
         {
             if (rigidbody == null) return;
-            rigidbody.velocity = Vector3.left * spd;
+            switch(wallType)
+            {
+                case (int)MoveType._NORMAL:
+                    rigidbody.velocity = Vector3.left * spd * Time.deltaTime;
+                    break;
+                case (int)MoveType._SWIPE:
+                    rigidbody.velocity = (Vector3.left + Vector3.up * direction) * spd * Time.deltaTime ;
+                    break;
+            }
+            direction *= -1;
             await Task.Delay(1000);
         }
     }
