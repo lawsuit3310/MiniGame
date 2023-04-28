@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -8,7 +9,17 @@ namespace Script
     public class UnityChanController : MonoBehaviour
     {
         public float rotationSpeed = 360f;   
-        public float moveSpeed = 5f;         
+        public float moveSpeed = 5f;
+
+        private CharacterController _characterController;
+        private Animator anim;
+
+        private void Awake()
+        {
+            anim = GetComponent<Animator>();
+            _characterController = GetComponent<CharacterController>();
+        }
+
         public void Update()
         {
             Vector3 dir = new Vector3(
