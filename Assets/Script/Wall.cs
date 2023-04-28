@@ -8,10 +8,23 @@ using UnityEngine;
 public class Wall : MonoBehaviour
 {   // Update is called once per frame
     public float spd;
+    public int wallType;
+    public int direction;
     new Rigidbody rigidbody;
+
+    bool trigger = true;
+
+    enum MoveType
+    {
+        _NORMAL = 0,
+        _SWIPE
+    }
 
     private void Awake()
     {
+        wallType = UnityEngine.Random.Range(0,2);
+        Debug.Log(wallType);
+
         try
         {
             this.rigidbody = GetComponent<Rigidbody>();
@@ -20,6 +33,11 @@ public class Wall : MonoBehaviour
         {
             Debug.LogError(e.Message);
         }
+
+        this.transform.position = new Vector3(
+            this.transform.position.x,
+            UnityEngine.Random.Range(-1f,2.5f),
+            this.transform.position.z); ;
     }
     private void Start()
     {
@@ -29,7 +47,12 @@ public class Wall : MonoBehaviour
     {
         if (this.transform.position.x < -15)
         {
-            this.transform.position = new Vector3(5, 1, -10);
+            Destroy(this.gameObject);
+        }
+        else if (this.transform.position.x < -5 && trigger)
+        {
+            trigger = false;
+            GameManager.score += 1;
         }
     }
 
@@ -37,8 +60,25 @@ public class Wall : MonoBehaviour
     {
         while (true)
         {
-            rigidbody.velocity = Vector3.left * spd;
+            if (rigidbody == null) return;
+            switch(wallType)
+            {
+                case (int)MoveType._NORMAL:
+                    rigidbody.velocity = Vector3.left * spd * Time.deltaTime;
+                    break;
+                case (int)MoveType._SWIPE:
+                    rigidbody.velocity = (Vector3.left + Vector3.up * direction) * spd * Time.deltaTime ;
+                    break;
+            }
+            direction *= -1;
             await Task.Delay(1000);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("PLAYER"))
+            GameManager.resetGame();
+
     }
 }
